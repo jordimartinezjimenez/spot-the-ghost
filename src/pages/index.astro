@@ -49,7 +49,6 @@ const maxGhosts = 10;
 </Layout>
 <script>
 	import { getCldImageUrl } from "astro-cloudinary/helpers";
-	import GameStatus from "../components/GameStatus.astro";
 
 	type Ghost = {
 		id: number;
@@ -80,7 +79,6 @@ const maxGhosts = 10;
 		}
 	};
 
-	// Crear el elemento visual del fantasma
 	const createGhostElement = (ghost: Ghost) => {
 		const ghostElement = document.createElement("div");
 		ghostElement.classList.add(
@@ -135,14 +133,12 @@ const maxGhosts = 10;
 		widget.addEventListener("clduploadwidget:success", ((
 			e: CustomEvent<{ info: { public_id: string } }>,
 		) => {
-			console.log("clduploadwidget:success", e.detail);
 			const publicId = e.detail.info.public_id;
 			const url = getCldImageUrl({
 				src: publicId,
 				replaceBackground:
 					"dark terrifying ghostly background in thick mist",
 			});
-			console.log(url);
 			gameBoard.style.backgroundImage = `url("${url}")`;
 		}) as EventListener);
 	}
