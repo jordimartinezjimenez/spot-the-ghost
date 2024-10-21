@@ -3,6 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import { CldUploadWidget } from "astro-cloudinary";
 import Gallery from "../components/Gallery.astro";
 import GameStatus from "../components/GameStatus.astro";
+import Footer from "../components/Footer.astro";
 
 const maxGhosts = 10;
 ---
@@ -43,6 +44,7 @@ const maxGhosts = 10;
 		</div>
 		<GameStatus maxGhosts={maxGhosts} />
 		<Gallery />
+		<Footer />
 	</main>
 </Layout>
 <script>
