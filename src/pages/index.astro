@@ -2,41 +2,52 @@
 import Layout from "../layouts/Layout.astro";
 import { CldUploadWidget } from "astro-cloudinary";
 import Gallery from "../components/Gallery.astro";
+import GameStatus from "../components/GameStatus.astro";
 
 const maxGhosts = 10;
 ---
 
 <Layout title="Spot the Ghosts - Cloudinary Hackathon">
 	<main
-		class="max-w-screen-lg mx-auto flex flex-col items-center gap-y-5 mt-10"
+		class="max-w-screen-lg mx-auto flex flex-col items-center gap-y-5 pt-10"
 	>
 		<h1
 			class="text-6xl text-balance text-center text-transparent py-6 leading-none tracking-wider bg-gradient-to-br from-white from-20% to-white/40 bg-clip-text"
 		>
 			Spot the Ghosts
 		</h1>
-		<CldUploadWidget
-			id="upload-widget"
-			uploadPreset="spot-the-ghost"
-			options={{
-				sources: ["local", "url", "camera"],
-				maxFiles: 1,
-				multiple: false,
-			}}
-		>
-			<button class="px-2 py-1 border-2 border-yellow-900 rounded-lg transition shadow-lg hover:scale-105">Upload background</button>
-		</CldUploadWidget>
+		<div class="text-center">
+			<CldUploadWidget
+				id="upload-widget"
+				uploadPreset="spot-the-ghost"
+				options={{
+					sources: ["local", "url", "camera"],
+					maxFiles: 1,
+					multiple: false,
+				}}
+			>
+				<button
+					class="px-2 py-1 border-2 border-yellow-900 rounded-lg transition shadow-lg hover:scale-105"
+					>Upload</button
+				>
+			</CldUploadWidget>
+			<p class="text-slate-300 mt-1 text-balance">
+				Upload an image to make it terrifying and play with it as
+				background
+			</p>
+		</div>
 		<div
-			class="min-w-80 min-h-80 md:w-[30rem] md:h-[30rem] bg-cover bg-center rounded-lg relative border backdrop-blur-[8px] cursor-pointer shadow-lg"
+			class="min-w-80 min-h-80 md:w-[30rem] md:h-[30rem] bg-cover bg-center rounded-lg relative border backdrop-blurred cursor-pointer shadow-lg"
 			id="game-board"
 		>
 		</div>
-		<div id="score">👻 Ghosts spotted: <span class="font-bold">0 of {maxGhosts}</span> 👻</div>
+		<GameStatus maxGhosts={maxGhosts} />
 		<Gallery />
 	</main>
 </Layout>
 <script>
 	import { getCldImageUrl } from "astro-cloudinary/helpers";
+	import GameStatus from "../components/GameStatus.astro";
 
 	type Ghost = {
 		id: number;
@@ -47,6 +58,7 @@ const maxGhosts = 10;
 
 	const gameBoard = document.getElementById("game-board") as HTMLElement;
 	const scoreDisplay = document.getElementById("score") as HTMLElement;
+	const restart = document.getElementById("restart") as HTMLElement;
 
 	let score = 0;
 	let ghosts: Ghost[] = [];
@@ -98,10 +110,18 @@ const maxGhosts = 10;
 		if (ghost && !ghost.clicked) {
 			ghost.clicked = true;
 			score += 1;
-			scoreDisplay.innerText = `Ghosts spotted: ${score} of ${maxGhosts}`;
+			scoreDisplay.innerText = `👻 Ghosts spotted: ${score} of ${maxGhosts} 👻`;
 			ghostElement.remove();
 		}
 	};
+
+	restart.addEventListener("click", () => {
+		score = 0;
+		scoreDisplay.innerText = `👻 Ghosts spotted: ${score} of ${maxGhosts} 👻`;
+		ghosts = [];
+		gameBoard.innerHTML = "";
+		generateGhosts();
+	});
 
 	window.onload = () => {
 		generateGhosts();
@@ -130,5 +150,8 @@ const maxGhosts = 10;
 		font-family: "Eater", serif;
 		font-weight: 400;
 		font-style: normal;
+	}
+	.backdrop-blurred {
+		backdrop-filter: blur(8px);
 	}
 </style>

@@ -12,7 +12,7 @@ const images = await getCollection("images");
         {
             images.map((image: any) => {
                 return (
-                    <li>
+                    <li class="w-[250] h-[250] overflow-hidden rounded-lg">
                         <CldImage
                             src={image.data.public_id}
                             width={250}
@@ -21,6 +21,7 @@ const images = await getCollection("images");
                                 type: "fill",
                                 source: true,
                             }}
+                            class="shadow-lg  hover:scale-110 transition ease-in-out duration-300"
                         />
                     </li>
                 );
