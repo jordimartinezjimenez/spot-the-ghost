@@ -1,0 +1,38 @@
+---
+import { CldImage } from "astro-cloudinary";
+import { getCollection } from "astro:content";
+const images = await getCollection("images");
+---
+
+<div class="flex flex-col gap-y-5 mb-5 mt-5 md:mb-10 md:mt-10 mx-5">
+    <h2 class="text-3xl text-balance text-center">
+        Some backgrounds uploaded by users
+    </h2>
+    <ul class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mx-5">
+        {
+            images.map((image: any) => {
+                return (
+                    <li>
+                        <CldImage
+                            src={image.data.public_id}
+                            width={250}
+                            height={250}
+                            crop={{
+                                type: "fill",
+                                source: true,
+                            }}
+                        />
+                    </li>
+                );
+            })
+        }
+    </ul>
+</div>
+
+<style>
+    h2 {
+        font-family: "Eater", serif;
+        font-weight: 400;
+        font-style: normal;
+    }
+</style>

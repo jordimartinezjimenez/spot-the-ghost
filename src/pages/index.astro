@@ -1,0 +1,134 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { CldUploadWidget } from "astro-cloudinary";
+import Gallery from "../components/Gallery.astro";
+
+const maxGhosts = 10;
+---
+
+<Layout title="Spot the Ghosts - Cloudinary Hackathon">
+	<main
+		class="max-w-screen-lg mx-auto flex flex-col items-center gap-y-5 mt-10"
+	>
+		<h1
+			class="text-6xl text-balance text-center text-transparent py-6 leading-none tracking-wider bg-gradient-to-br from-white from-20% to-white/40 bg-clip-text"
+		>
+			Spot the Ghosts
+		</h1>
+		<CldUploadWidget
+			id="upload-widget"
+			uploadPreset="spot-the-ghost"
+			options={{
+				sources: ["local", "url", "camera"],
+				maxFiles: 1,
+				multiple: false,
+			}}
+		>
+			<button class="px-2 py-1 border-2 border-yellow-900 rounded-lg transition shadow-lg hover:scale-105">Upload background</button>
+		</CldUploadWidget>
+		<div
+			class="min-w-80 min-h-80 md:w-[30rem] md:h-[30rem] bg-cover bg-center rounded-lg relative border backdrop-blur-[8px] cursor-pointer shadow-lg"
+			id="game-board"
+		>
+		</div>
+		<div id="score">👻 Ghosts spotted: <span class="font-bold">0 of {maxGhosts}</span> 👻</div>
+		<Gallery />
+	</main>
+</Layout>
+<script>
+	import { getCldImageUrl } from "astro-cloudinary/helpers";
+
+	type Ghost = {
+		id: number;
+		x: number;
+		y: number;
+		clicked: boolean;
+	};
+
+	const gameBoard = document.getElementById("game-board") as HTMLElement;
+	const scoreDisplay = document.getElementById("score") as HTMLElement;
+
+	let score = 0;
+	let ghosts: Ghost[] = [];
+	const maxGhosts = 10;
+
+	const generateGhosts = () => {
+		ghosts = [];
+		for (let i = 0; i < maxGhosts; i++) {
+			const ghost: Ghost = {
+				id: i,
+				x: Math.random() * 90,
+				y: Math.random() * 90,
+				clicked: false,
+			};
+			ghosts.push(ghost);
+			createGhostElement(ghost);
+		}
+	};
+
+	// Crear el elemento visual del fantasma
+	const createGhostElement = (ghost: Ghost) => {
+		const ghostElement = document.createElement("div");
+		ghostElement.classList.add(
+			"absolute",
+			"bg-slate-500/20",
+			"rounded-full",
+			"w-8",
+			"h-8",
+			"flex",
+			"items-center",
+			"justify-center",
+			"crosshair",
+		);
+		ghostElement.style.top = `${ghost.y}%`;
+		ghostElement.style.left = `${ghost.x}%`;
+		ghostElement.innerHTML = "👻";
+		ghostElement.setAttribute("data-id", ghost.id.toString());
+
+		ghostElement.addEventListener("click", () =>
+			handleGhostClick(ghost.id, ghostElement),
+		);
+
+		gameBoard.appendChild(ghostElement);
+	};
+
+	const handleGhostClick = (id: number, ghostElement: HTMLElement) => {
+		const ghost = ghosts.find((g) => g.id === id);
+
+		if (ghost && !ghost.clicked) {
+			ghost.clicked = true;
+			score += 1;
+			scoreDisplay.innerText = `Ghosts spotted: ${score} of ${maxGhosts}`;
+			ghostElement.remove();
+		}
+	};
+
+	window.onload = () => {
+		generateGhosts();
+	};
+
+	const widget = document.querySelector("#upload-widget");
+
+	if (widget) {
+		widget.addEventListener("clduploadwidget:success", ((
+			e: CustomEvent<{ info: { public_id: string } }>,
+		) => {
+			console.log("clduploadwidget:success", e.detail);
+			const publicId = e.detail.info.public_id;
+			const url = getCldImageUrl({
+				src: publicId,
+				replaceBackground:
+					"dark terrifying ghostly background in thick mist",
+			});
+			console.log(url);
+			gameBoard.style.backgroundImage = `url("${url}")`;
+		}) as EventListener);
+	}
+</script>
+<style>
+	h1 {
+		font-family: "Eater", serif;
+		font-weight: 400;
+		font-style: normal;
+	}
+</style>
